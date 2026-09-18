@@ -48,17 +48,16 @@ border:0;border-radius:24px;padding:13px 20px;font-size:16px;background:#fff;col
  material="shader:flat;transparent:true;alphaTest:0.02;side:double"></a-image>
 </a-entity>
 
-<a-entity id="mouthPivot" position="-0.48 0.345 0.020">
-<a-image src="#mouthTex" position="0.48 -0.345 0" width="1.45" height="1.45"
+<!-- Apatinio snapo sukimosi taškas. mouth.png išlaiko visą 2048x2048 canvas. -->
+<a-entity id="mouthPivot" position="-0.405 0.155 0.020">
+<a-image src="#mouthTex" position="0.405 -0.155 0" width="1.45" height="1.45"
  material="shader:flat;transparent:true;alphaTest:0.02;side:double"></a-image>
 </a-entity>
 
-<!-- Eye PNGs share the same 2048x2048 canvas as the body, so no manual repositioning. -->
 <a-image id="openEye" src="#openEyeTex" position="0 0 0.026" width="1.45" height="1.45"
  material="shader:flat;transparent:true;alphaTest:0.02;side:double"></a-image>
 <a-image id="closedEye" src="#closedEyeTex" position="0 0 0.028" width="1.45" height="1.45"
- visible="false"
- material="shader:flat;transparent:true;alphaTest:0.02;side:double"></a-image>
+ visible="false" material="shader:flat;transparent:true;alphaTest:0.02;side:double"></a-image>
 
 </a-entity>
 </a-entity>
@@ -85,7 +84,7 @@ function setupAudioAnalysis(){
   audioCtx=new AC();
   analyser=audioCtx.createAnalyser();
   analyser.fftSize=256;
-  analyser.smoothingTimeConstant=0.65;
+  analyser.smoothingTimeConstant=0.42;
   dataArray=new Uint8Array(analyser.frequencyBinCount);
   sourceNode=audioCtx.createMediaElementSource(sound);
   sourceNode.connect(analyser);
@@ -96,13 +95,13 @@ function scheduleBlink(){
   clearTimeout(blinkTimer);
   const delay=2200+Math.random()*3200;
   blinkTimer=setTimeout(()=>{
-    if(!found){ scheduleBlink(); return; }
+    if(!found){scheduleBlink();return;}
     openEye.setAttribute('visible','false');
     closedEye.setAttribute('visible','true');
     setTimeout(()=>{
       closedEye.setAttribute('visible','false');
       openEye.setAttribute('visible','true');
-      if(found) scheduleBlink();
+      if(found)scheduleBlink();
     },145);
   },delay);
 }
@@ -123,29 +122,40 @@ start.addEventListener('click',async()=>{
 });
 
 function animate(ts){
-  if(!found) return;
+  if(!found)return;
   if(!t0)t0=ts;
   const t=(ts-t0)/1000;
 
-  // Slow independent wing movement.
-  const wingAngle=-1.5+Math.sin(t*(Math.PI*2/3.4))*5.0+
+  const wingAngle=-1.5+Math.sin(t*(Math.PI*2/3.4))*5+
                   Math.sin(t*(Math.PI*2/7.1))*1.2;
   wingPivot.object3D.rotation.z=THREE.MathUtils.degToRad(wingAngle);
 
-  // Mouth follows actual audio energy instead of a fixed rhythm.
+  /*
+    SNAPAS:
+    0° = 6 valandos (uždaryta / neutrali padėtis)
+    +90° = 9 valandos (maksimaliai atidaryta)
+    Garso energija tiesiogiai valdo kampą tarp 0° ir 90°.
+  */
   let mouthAngle=0;
   if(analyser && !sound.paused){
-    analyser.getByteFrequencyData(dataArray);
+    analyser.getByteTimeDomainData(dataArray);
     let sum=0;
-    // Voice-rich low/mid frequency bins.
-    const end=Math.min(40,dataArray.length);
-    for(let i=2;i<end;i++) sum+=dataArray[i];
-    const level=(sum/(end-2))/255;
-    const gated=Math.max(0,(level-0.035)/0.28);
-    mouthAngle=-Math.min(12,gated*12);
-  }
-  mouthPivot.object3D.rotation.z=THREE.MathUtils.degToRad(mouthAngle);
+    for(let i=0;i<dataArray.length;i++){
+      const x=(dataArray[i]-128)/128;
+      sum+=x*x;
+    }
+    const rms=Math.sqrt(sum/dataArray.length);
 
+    // Sustiprinta jautra kalbai. Tylos metu snapas lieka ties 6 val.
+    let level=(rms-0.008)/0.10;
+    level=Math.max(0,Math.min(1,level));
+
+    // Kad net tyliau kalbant judėjimas būtų aiškiai matomas.
+    level=Math.pow(level,0.65);
+    mouthAngle=level*90;
+  }
+
+  mouthPivot.object3D.rotation.z=THREE.MathUtils.degToRad(mouthAngle);
   raf=requestAnimationFrame(animate);
 }
 
@@ -154,10 +164,9 @@ target.addEventListener('targetFound',async()=>{
   group.setAttribute('visible','true');
   status.style.opacity='1';
   status.textContent='✓ Virtuvė atpažinta — personažas aktyvuotas';
-
   if(unlocked){
     try{
-      if(audioCtx && audioCtx.state==='suspended') await audioCtx.resume();
+      if(audioCtx && audioCtx.state==='suspended')await audioCtx.resume();
       await sound.play();
     }catch(e){}
   }
