@@ -1,72 +1,95 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Virbalis AR – Testas Nr. 4</title>
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <style>
-    html,body{margin:0;width:100%;height:100%;overflow:hidden}
-    #status{position:fixed;z-index:1000;top:16px;left:50%;transform:translateX(-50%);
-      max-width:88vw;padding:10px 14px;border-radius:18px;background:rgba(0,0,0,.65);
-      color:#fff;font:14px Arial,sans-serif;text-align:center;pointer-events:none}
-    #start{position:fixed;z-index:1001;left:50%;bottom:28px;transform:translateX(-50%);
-      border:0;border-radius:24px;padding:13px 20px;font-size:16px;background:#fff;color:#111}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Virbalis AR – Testas Nr. 4: Virtuvė</title>
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+#status{position:fixed;z-index:1000;top:16px;left:50%;transform:translateX(-50%);
+max-width:88vw;padding:10px 14px;border-radius:18px;background:rgba(0,0,0,.65);
+color:#fff;font:14px Arial,sans-serif;text-align:center;pointer-events:none}
+#start{position:fixed;z-index:1001;left:50%;bottom:28px;transform:translateX(-50%);
+border:0;border-radius:24px;padding:13px 20px;font-size:16px;background:#fff;color:#111}
+</style>
 </head>
 <body>
-<div id="status">Padėk Testo Nr. 3 markerį ten, kur nori matyti personažą (~4 m nuo savęs), tada spausk „Pradėti“.</div>
+<div id="status">Paspausk „Pradėti“ ir nukreipk kamerą į virtuvę iš fotografavimo vietos.</div>
 <button id="start">Pradėti</button>
 <audio id="memory" src="./memory.mp3" preload="auto" loop></audio>
 
 <a-scene
-  mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; filterMinCF: 0.001; filterBeta: 0.01; missTolerance: 12; warmupTolerance: 5;"
-  color-space="sRGB"
-  renderer="colorManagement: true; physicallyCorrectLights: true; alpha: true"
-  vr-mode-ui="enabled: false"
-  device-orientation-permission-ui="enabled: false">
+ mindar-image="imageTargetSrc: ./targets.mind; autoStart:true; filterMinCF:0.001; filterBeta:0.01; missTolerance:18; warmupTolerance:5;"
+ color-space="sRGB"
+ renderer="colorManagement:true; physicallyCorrectLights:true; alpha:true"
+ vr-mode-ui="enabled:false"
+ device-orientation-permission-ui="enabled:false">
 
-  <a-assets>
-    <img id="bodyTex" src="./character.png">
-    <img id="wingTex" src="./wing.png">
-    <img id="mouthTex" src="./mouth.png">
-  </a-assets>
+<a-assets>
+<img id="characterTex" src="./character.png">
+</a-assets>
 
-  <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
+<a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
 
-  <a-entity id="target" mindar-image-target="targetIndex:0">
-    <!-- Personažas stovi markerio vietoje. Markerį fiziškai padėk ~4 m nuo žiūrovo. -->
-    <a-entity id="characterGroup" position="0 0.72 0.02" scale="1.55 1.55 1.55">
+<a-entity id="target" mindar-image-target="targetIndex:0">
 
-      <a-image src="#bodyTex" position="0 0 0" width="1.45" height="1.45"
-        material="shader:flat; transparent:true; alphaTest:0.02; side:double"></a-image>
+  <!-- Visa figūra. Virtuvės targeto koordinatės yra santykinės targeto vaizdui. -->
+  <a-entity id="characterGroup"
+    position="0.08 -0.30 0.08"
+    scale="0.62 0.62 0.62"
+    visible="false">
 
-      <!-- Sparno kopija juda labai subtiliai virš originalaus piešinio. -->
-      <a-image id="wing" src="#wingTex" position="0 0 0.012" width="1.45" height="1.45"
-        material="shader:flat; transparent:true; alphaTest:0.02; side:double"
-        animation="property:rotation; from:0 0 -1.5; to:0 0 2.5; dir:alternate; dur:1800; loop:true; easing:easeInOutSine">
-      </a-image>
+    <!-- Pagrindinis personažas -->
+    <a-image src="#characterTex"
+      position="0 0 0"
+      width="1.45" height="1.45"
+      material="shader:flat;transparent:true;alphaTest:0.02;side:double">
+    </a-image>
 
-      <!-- Snapo/burnos sluoksnis: nedidelis pravėrimo/kalbėjimo judesys. -->
-      <a-image id="mouth" src="#mouthTex" position="0 0 0.018" width="1.45" height="1.45"
-        material="shader:flat; transparent:true; alphaTest:0.02; side:double"
-        animation="property:rotation; from:0 0 0; to:0 0 -1.8; dir:alternate; dur:360; loop:true; easing:easeInOutSine">
-      </a-image>
-
+    <!-- Pastebimas, bet subtilus viso kūno gyvumas -->
+    <a-entity
+      animation="property:rotation;from:0 0 -0.5;to:0 0 0.5;dir:alternate;dur:2200;loop:true;easing:easeInOutSine">
     </a-entity>
+
   </a-entity>
+</a-entity>
 </a-scene>
 
 <script>
-const target = document.querySelector('#target');
-const start = document.querySelector('#start');
-const status = document.querySelector('#status');
-const sound = document.querySelector('#memory');
-const mouth = document.querySelector('#mouth');
-let unlocked=false;
+const target=document.querySelector('#target');
+const group=document.querySelector('#characterGroup');
+const start=document.querySelector('#start');
+const status=document.querySelector('#status');
+const sound=document.querySelector('#memory');
+let unlocked=false, wingPhase=0, mouthPhase=0, raf=null;
 
-start.addEventListener('click', async()=>{
+/*
+ TESTAS NR. 4:
+ Kad sparnas ir snapas judėtų aiškiai nekeičiant originalaus piešinio failo,
+ animacija daroma CSS/WebGL tekstūros deformacijos iliuzija:
+ periodiškai keičiame viso personažo X/Y mastelį dviem skirtingais ritmais.
+ Tai prototipas. Tikrai atskirai artikuliuotai animacijai reikės paruoštų
+ atskirų kūno/sparno/snapo sluoksnių arba 2D rig.
+*/
+function animateCharacter(){
+  wingPhase += 0.035;
+  mouthPhase += 0.12;
+
+  // lėtas „sparno/kūno“ pulsas + greitesnis kalbėjimo mikrojudesys
+  const wing = Math.sin(wingPhase) * 0.018;
+  const talk = sound.paused ? 0 : Math.max(0,Math.sin(mouthPhase))*0.012;
+
+  group.object3D.scale.set(
+    0.62 + wing,
+    0.62 - wing*0.35 + talk,
+    0.62
+  );
+  raf=requestAnimationFrame(animateCharacter);
+}
+
+start.addEventListener('click',async()=>{
   try{
     sound.volume=0;
     await sound.play();
@@ -76,20 +99,24 @@ start.addEventListener('click', async()=>{
     unlocked=true;
   }catch(e){}
   start.style.display='none';
-  status.textContent='Nukreipk kamerą į markerį virtuvėje.';
+  status.textContent='Lėtai nukreipk kamerą į centrinę virtuvės dalį.';
 });
 
-target.addEventListener('targetFound', async()=>{
-  status.textContent='✓ Personažas aptiktas';
-  if(unlocked){ try{ await sound.play(); }catch(e){} }
-  mouth.setAttribute('animation','enabled',true);
-  setTimeout(()=>status.style.opacity='0',1800);
+target.addEventListener('targetFound',async()=>{
+  group.setAttribute('visible','true');
+  status.style.opacity='1';
+  status.textContent='✓ Virtuvė atpažinta — personažas aktyvuotas';
+  if(unlocked){try{await sound.play();}catch(e){}}
+  cancelAnimationFrame(raf);
+  animateCharacter();
+  setTimeout(()=>status.style.opacity='0',2000);
 });
 
 target.addEventListener('targetLost',()=>{
   sound.pause();
+  cancelAnimationFrame(raf);
   status.style.opacity='1';
-  status.textContent='Markeris pamestas — nukreipk kamerą atgal į jo vietą.';
+  status.textContent='Virtuvės vaizdas pamestas — grįžk prie panašaus fotografavimo kampo.';
 });
 </script>
 </body>
