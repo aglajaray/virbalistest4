@@ -132,9 +132,9 @@ function animate(ts){
 
   /*
     SNAPAS:
-    0° = 6 valandos (uždaryta / neutrali padėtis)
-    +90° = 9 valandos (maksimaliai atidaryta)
-    Garso energija tiesiogiai valdo kampą tarp 0° ir 90°.
+    Snapas juda labai subtiliai pagal garsą.
+    Uždaryta = 0°, maksimalus pravėrimas = tik 6°.
+    Taip apatinė dalis lieka arti kūno ir vos kilnojasi aukštyn/žemyn.
   */
   let mouthAngle=0;
   if(analyser && !sound.paused){
@@ -152,7 +152,7 @@ function animate(ts){
 
     // Kad net tyliau kalbant judėjimas būtų aiškiai matomas.
     level=Math.pow(level,0.65);
-    mouthAngle=level*90;
+    mouthAngle=level*6;
   }
 
   mouthPivot.object3D.rotation.z=THREE.MathUtils.degToRad(mouthAngle);
