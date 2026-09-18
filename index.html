@@ -133,7 +133,7 @@ function animate(ts){
   /*
     SNAPAS:
     Snapas juda labai subtiliai pagal garsą.
-    Uždaryta = 0°, maksimalus pravėrimas = tik 6°.
+    Uždaryta = 0°, maksimalus pravėrimas = 20°.
     Taip apatinė dalis lieka arti kūno ir vos kilnojasi aukštyn/žemyn.
   */
   let mouthAngle=0;
@@ -152,7 +152,7 @@ function animate(ts){
 
     // Kad net tyliau kalbant judėjimas būtų aiškiai matomas.
     level=Math.pow(level,0.65);
-    mouthAngle=level*6;
+    mouthAngle=level*20;
   }
 
   mouthPivot.object3D.rotation.z=THREE.MathUtils.degToRad(mouthAngle);
